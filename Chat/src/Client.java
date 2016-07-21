@@ -14,6 +14,8 @@ public class Client extends JFrame implements Runnable {
     protected DataOutputStream outStrem;
     protected JTextArea outTextArea;
     protected JTextField inTextField;
+    protected JButton button;
+    protected JPanel panel;
     protected boolean isOn;
 
     public Client(String title, Socket s, DataInputStream dis, DataOutputStream dos) {
@@ -25,20 +27,15 @@ public class Client extends JFrame implements Runnable {
         cp.setLayout(new BorderLayout());
         cp.add(BorderLayout.CENTER, outTextArea = new JTextArea());
         outTextArea.setEditable(false);
-        cp.add(BorderLayout.SOUTH, inTextField = new JTextField());
+        panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(BorderLayout.CENTER, inTextField = new JTextField());
+        panel.add(BorderLayout.EAST, button = new JButton("Send"));
+        cp.add(BorderLayout.SOUTH, panel);
 
-        inTextField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    outStrem.writeUTF(inTextField.getText());
-                    outStrem.flush();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-                inTextField.setText("");
-            }
-        });
+        inTextField.addActionListener(new Sender());
+
+        button.addActionListener(new Sender());
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -59,7 +56,7 @@ public class Client extends JFrame implements Runnable {
 
         });
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(new Sender());
         setSize(400, 500);
         setVisible(true);
         inTextField.requestFocus();
@@ -108,6 +105,19 @@ public class Client extends JFrame implements Runnable {
             } catch (IOException e3) {
                 e3.printStackTrace();
             }
+        }
+    }
+
+    private class Sender implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                outStrem.writeUTF(inTextField.getText());
+                outStrem.flush();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            inTextField.setText("");
         }
     }
 }
