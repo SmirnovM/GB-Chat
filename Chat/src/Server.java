@@ -4,14 +4,19 @@ import java.net.Socket;
 
 public class Server {
 
+    public volatile static int countClient = 0;
+
     public Server(int port) throws IOException {
         ServerSocket service = new ServerSocket(port);
         try {
             while (true) {
-                Socket s = service.accept();
-                System.out.println("Accepted from " + s.getInetAddress());
-                Handler handler = new Handler(s);
-                handler.start();
+                if (countClient < 2) {
+                    Socket s = service.accept();
+                    System.out.println("Accepted from " + s.getInetAddress());
+                    Handler handler = new Handler(s);
+                    handler.start();
+                    countClient++;
+                }
             }
         } catch (IOException ex) {
             ex.printStackTrace();
